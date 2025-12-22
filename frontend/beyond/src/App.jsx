@@ -1,9 +1,18 @@
 import { useState } from "react";
-import All from "./All.jsx";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import All from "./pages/All.jsx";
+import ArticleViewPage from "./pages/Article.jsx";
+import Enhance from "./pages/Enhance.jsx";
 function App() {
   return (
     <>
-      <All />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/enhance/:id" element={<Enhance />} />
+          <Route path="/article/:id" element={<ArticleViewPage />} />
+          <Route path="/" element={<All />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }

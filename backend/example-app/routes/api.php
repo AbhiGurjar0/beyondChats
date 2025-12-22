@@ -29,7 +29,10 @@ Route::post('/articles/{id}/generate', function ($id) {
 
     return response()->json([
         'message' => 'Generation triggered successfully',
-        'worker_response' => $response->json()
+        'status'=> $response->status(),
+        'worker_response' => $response->json(),
+        'enhanced_article_id' => $response->json('enhanced_article_id')
+
     ]);
 });
 

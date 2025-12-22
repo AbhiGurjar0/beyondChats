@@ -101,7 +101,9 @@ Route::get('/articles/{id}', function ($id) {
         'title' => $article->title,
         'content' => $article->content,
         'is_generated' => $article->is_generated,
-        'parent_id' => $article->parent_id
+        'parent_id' => $article->parent_id,
+        'created_at'=> $article->created_at,
+        'updated_at'=> $article->updated_at,
     ]);
 });
 
