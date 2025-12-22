@@ -10,6 +10,7 @@ class Article extends Model
         'title',
         'content',
         'source_url',
-        'is_generated'
+        'is_generated',
+        'parent_id'
     ];
 }

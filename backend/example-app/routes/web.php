@@ -5,11 +5,6 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
 use App\Models\Article;
 
-
-
-
-
-
 function scrapeArticleContent($url)
 {
     $response = Http::get($url);
@@ -84,14 +79,29 @@ Route::get('/', function () {
 });
 Route::get('/articles', function () {
     $articles = Article::all();
-    return view('home', compact('articles'));
+
+    return response()->json(
+        $articles->map(function ($article) {
+            return [
+                'id' => $article->id,
+                'title' => $article->title,
+                'content' => $article->content,
+                'is_generated' => $article->is_generated,
+                'parent_id' => $article->parent_id,
+                'created_at' => $article->created_at,
+                'updated_at' => $article->updated_at,
+            ];
+        })
+    );
 });
 Route::get('/articles/{id}', function ($id) {
-    $articles = Article::find($id);
-    return view('article', compact('articles'));
+    $article = Article::find($id);
+    return response()->json([
+        'id' => $article->id,
+        'title' => $article->title,
+        'content' => $article->content,
+        'is_generated' => $article->is_generated,
+        'parent_id' => $article->parent_id
+    ]);
 });
-
-
-
-
 

@@ -1,13 +1,11 @@
-import { useState } from 'react'
+import { useState } from "react";
+import All from "./All.jsx";
 function App() {
   return (
     <>
-    <div>
-      <h1>Hi</h1>
-    </div>
-      
+      <All />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
