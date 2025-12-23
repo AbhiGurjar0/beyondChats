@@ -209,7 +209,9 @@ const ArticleViewPage = ({ onEnhance }) => {
               </div>
             </div>
           </article>
+         
         )}
+        
 
         {/* Related Info Card */}
         {article.parent_id && (

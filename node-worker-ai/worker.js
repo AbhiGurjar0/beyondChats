@@ -4,11 +4,9 @@ import dotenv from "dotenv";
 import { searchGoogle } from "./pipeline/google.js";
 import { scrapeArticle } from "./pipeline/scraper.js";
 import { generateUpdatedArticle } from "./pipeline/llm.js";
-
-export default startHeavyGeneration = async (req, res) => {
+const LARAVEL_API = process.env.LARAVEL_API;
+async function startHeavyGeneration(jobId, article_id) {
   try {
-    const { article_id } = req.body;
-
     if (!article_id) {
       return res.status(400).json({
         message: "article_id missing",
@@ -19,14 +17,15 @@ export default startHeavyGeneration = async (req, res) => {
     // console.log("Fetched article data for ID:", response.data);
     let title = response.data.title;
     let content = response.data.content;
+    console.log("Article fetched:", title);
 
-    // const links = await searchGoogle(title);
-    // console.log("Found links:", links);
-    // 3️⃣ Scrape competitor content
-    const links = [
-      //   "https://medium.com/@S3CloudHub./choosing-the-right-ai-chatbot-a-comprehensive-guide-47fd478fe0ce",
-      "https://beyondchats.com/blogs/choosing-the-right-ai-chatbot-a-guide/",
-    ];
+    const links = await searchGoogle(title);
+    console.log("Found links:", links);
+    // // 3️⃣ Scrape competitor content
+    // const links = [
+    //   //   "https://medium.com/@S3CloudHub./choosing-the-right-ai-chatbot-a-comprehensive-guide-47fd478fe0ce",
+    //   "https://beyondchats.com/blogs/choosing-the-right-ai-chatbot-a-guide/",
+    // ];
     const competitorContents = [];
     for (const link of links) {
       competitorContents.push(await scrapeArticle(link));
@@ -61,18 +60,26 @@ export default startHeavyGeneration = async (req, res) => {
     });
 
     // TEMP simulation (replace with real logic later)
-    console.log("Generating article for ID:", article_id);
+    console.log("Generated article for ID in Worker:", created.data);
+    //set job id Status to completed in Laravel
+    await axios.put(`${LARAVEL_API}/api/generation-jobs/update-status`, {
+      job_id: jobId,
+      job_status: "completed",
+      enhanced_article_id: created.data.article.id,
+    });
 
-    return res.status(200).json({
+    return {
       message: "Generation started",
       article_id: article_id,
-      enhanced_article_id: created.data.id,
-    });
+      enhanced_article_id: created.data.article.id,
+    };
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    return {
       message: "Worker error",
       error: error.message,
-    });
+    };
   }
-};
+}
+
+export default startHeavyGeneration ;

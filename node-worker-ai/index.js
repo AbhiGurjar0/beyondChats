@@ -1,5 +1,6 @@
 import express from "express";
-import uuid from "uuid/v4";
+import { v4 as uuidv4 } from "uuid";
+const uuid = () => uuidv4().replace(/-/g, "");
 const app = express();
 app.use(express.json());
 import startHeavyGeneration from "./worker.js";
@@ -7,7 +8,8 @@ import startHeavyGeneration from "./worker.js";
 app.post("/generate", async (req, res) => {
   const jobId = uuid();
   startHeavyGeneration(jobId, req.body.article_id);
-  res.json({
+  console.log("Job started with ID:", jobId);
+  return res.json({
     job_id: jobId,
     status: "started",
   });

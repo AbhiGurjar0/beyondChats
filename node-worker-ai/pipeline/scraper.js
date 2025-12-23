@@ -1,23 +1,47 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+async function scrapeArticle(url) {
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        Referer: "https://www.google.com/",
+      },
+      timeout: 12000,
+      validateStatus: (status) => status < 500, // allow 4xx
+    });
 
-export async function scrapeArticle(url) {
-  const response = await axios.get(url, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
-      "Accept-Language": "en-US,en;q=0.9",
-      Accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-      Referer: "https://www.google.com/",
-    },
-    timeout: 15000,
-  });
+    if (response.status !== 200) {
+      console.warn(`⚠️ Blocked (${response.status}): ${url}`);
+      return null;
+    }
 
-  const html = response.data;
+    const html = response.data;
+
+    // Detect bot protection
+    if (/cloudflare|captcha|access denied/i.test(html)) {
+      console.warn("⚠️ Bot protection detected:", url);
+      return null;
+    }
+
+    return parseHtml(html, url);
+  } catch (err) {
+    console.warn(`⚠️ Scrape failed: ${url} → ${err.message}`);
+    return null;
+  }
+}
+
+/**
+ * Parse HTML using Cheerio (your logic)
+ */
+function parseHtml(html, url) {
   const $ = cheerio.load(html);
 
-  // Remove noise elements
+  // Remove noise
   $(
     "script, style, nav, footer, header, noscript, iframe, aside, .ad, .advertisement, .social-share, .comments, [class*=sidebar], [id*=sidebar]"
   ).remove();
@@ -27,13 +51,13 @@ export async function scrapeArticle(url) {
   let headings = [];
   let images = [];
 
-  // Extract main title
+  // Title
   title =
     $("h1").first().text().trim() ||
     $('meta[property="og:title"]').attr("content") ||
     $("title").text().trim();
 
-  // Find the main article container
+  // Article container detection
   let $article = null;
   const articleSelectors = [
     "article",
@@ -49,65 +73,57 @@ export async function scrapeArticle(url) {
   ];
 
   for (const selector of articleSelectors) {
-    const elem = $(selector).first();
-    if (elem.length && elem.find("p").length > 2) {
-      $article = elem;
+    const el = $(selector).first();
+    if (el.length && el.find("p").length > 2) {
+      $article = el;
       break;
     }
   }
 
-  // Fallback to body if no article container found
-  if (!$article) {
-    $article = $("body");
-  }
+  if (!$article) $article = $("body");
 
-  // Extract all headings from article (h1-h6)
-  $article.find("h1, h2, h3, h4, h5, h6").each((i, elem) => {
-    const $heading = $(elem);
-    const level = elem.tagName.toLowerCase();
-    const text = $heading.text().trim();
-
-    if (text && text.length > 0) {
+  // Headings
+  $article.find("h1, h2, h3, h4, h5, h6").each((i, el) => {
+    const text = $(el).text().trim();
+    if (text) {
       headings.push({
-        level,
+        level: el.tagName.toLowerCase(),
         text,
         order: i,
       });
     }
   });
 
-  // Extract all images from article
-  $article.find("img").each((i, elem) => {
-    const $img = $(elem);
+  // Images
+  $article.find("img").each((i, el) => {
     let src =
-      $img.attr("src") || $img.attr("data-src") || $img.attr("data-lazy-src");
-    const alt = $img.attr("alt") || "";
-    const title = $img.attr("title") || "";
+      $(el).attr("src") ||
+      $(el).attr("data-src") ||
+      $(el).attr("data-lazy-src");
 
-    // Handle relative URLs
     if (src && !src.startsWith("http")) {
       try {
-        const baseUrl = new URL(url);
-        src = new URL(src, baseUrl.origin).href;
-      } catch (e) {}
+        const base = new URL(url);
+        src = new URL(src, base.origin).href;
+      } catch {}
     }
 
     if (src && !src.startsWith("data:")) {
       images.push({
         src,
-        alt,
-        title,
+        alt: $(el).attr("alt") || "",
+        title: $(el).attr("title") || "",
         order: i,
       });
     }
   });
 
-  // Also check for Open Graph image if no images found in content
-  if (images.length === 0) {
-    const ogImage = $('meta[property="og:image"]').attr("content");
-    if (ogImage) {
+  // OG image fallback
+  if (!images.length) {
+    const ogImg = $('meta[property="og:image"]').attr("content");
+    if (ogImg) {
       images.push({
-        src: ogImage,
+        src: ogImg,
         alt: "Featured image",
         title: "",
         order: 0,
@@ -115,48 +131,34 @@ export async function scrapeArticle(url) {
     }
   }
 
-  // Strategy 1: Look for JSON-LD structured data
-  const jsonLd = $('script[type="application/ld+json"]');
-  jsonLd.each((i, elem) => {
+  // Strategy 1: JSON-LD
+  $('script[type="application/ld+json"]').each((_, el) => {
     try {
-      const data = JSON.parse($(elem).html());
+      const data = JSON.parse($(el).html());
       if (data.articleBody) {
         content = data.articleBody;
         return false;
       }
-    } catch (e) {}
+    } catch {}
   });
 
-  // Strategy 2: Extract paragraphs from article container
+  // Strategy 2: Paragraphs
   if (!content) {
     const paragraphs = $article
       .find("p")
-      .map((i, el) => $(el).text().trim())
+      .map((_, el) => $(el).text().trim())
       .get()
-      .filter((text) => text.length > 20);
+      .filter((t) => t.length > 20);
 
-    if (paragraphs.length > 0) {
-      content = paragraphs.join("\n\n");
-    }
+    content = paragraphs.join("\n\n");
   }
 
-  // Strategy 3: Score-based paragraph extraction
+  // Strategy 3: Score-based fallback
   if (!content || content.length < 200) {
     const paragraphs = $("p")
-      .map((i, el) => {
-        const $p = $(el);
-        const text = $p.text().trim();
-        const parent = $p.parent().attr("class") || "";
-        const parentId = $p.parent().attr("id") || "";
-
-        let score = 0;
-        if (text.length > 50) score += text.length / 10;
-        if (text.split(" ").length > 20) score += 10;
-        if (/article|content|post|entry|body/i.test(parent + parentId))
-          score += 20;
-        if (/sidebar|comment|ad|share|widget/i.test(parent + parentId))
-          score -= 50;
-
+      .map((_, el) => {
+        const text = $(el).text().trim();
+        let score = text.length > 50 ? text.length / 10 : 0;
         return { text, score };
       })
       .get()
@@ -164,15 +166,13 @@ export async function scrapeArticle(url) {
       .sort((a, b) => b.score - a.score);
 
     content = paragraphs
-      .slice(0, Math.min(30, paragraphs.length))
+      .slice(0, 30)
       .map((p) => p.text)
       .join("\n\n");
   }
 
-  // Clean up whitespace
-  content = content.replace(/\s+/g, " ").replace(/\n\s+/g, "\n").trim();
+  content = content.replace(/\s+/g, " ").trim();
 
-  // Extract metadata
   const description =
     $('meta[name="description"]').attr("content") ||
     $('meta[property="og:description"]').attr("content") ||
@@ -203,3 +203,5 @@ export async function scrapeArticle(url) {
     imageCount: images.length,
   };
 }
+
+export { scrapeArticle };

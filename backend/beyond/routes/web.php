@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
 use App\Models\Article;
-
+use App\Models\GenerationJob as GenerationJob;
 function scrapeArticleContent($url)
 {
     $response = Http::get($url);
@@ -31,7 +31,7 @@ function scrapeArticleContent($url)
 }
 Route::get('/scrape', function () {
 
-    $response = Http::get('https://beyondchats.com/blogs?page=5');
+    $response = Http::get('https://beyondchats.com/blogs/page/13');
     $html = $response->body();
 
     $dom = new \DOMDocument();
@@ -102,8 +102,37 @@ Route::get('/articles/{id}', function ($id) {
         'content' => $article->content,
         'is_generated' => $article->is_generated,
         'parent_id' => $article->parent_id,
-        'created_at'=> $article->created_at,
-        'updated_at'=> $article->updated_at,
+        'created_at' => $article->created_at,
+        'updated_at' => $article->updated_at,
+    ]);
+});
+Route::get('/job-status/{jobId}', function ($jobId) {
+
+    $job = GenerationJob::where('job_id', $jobId)->first();
+
+    if (!$job) {
+        return response()->json([
+            'status' => 'processing',
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'completed',
+        'enhanced_article_id' => $job->enhanced_article_id,
     ]);
 });
 
+Route::delete('/articles/{id}', function ($id) {
+    $article = Article::find($id);
+    if (!$article) {
+        return response()->json([
+            'message' => 'Article not found'
+        ], 404);
+    }
+
+    $article->delete();
+
+    return response()->json([
+        'message' => 'Article deleted successfully'
+    ]);
+});

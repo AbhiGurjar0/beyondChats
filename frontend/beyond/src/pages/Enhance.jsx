@@ -23,36 +23,77 @@ const Enhance = () => {
 
     fetchArticle();
   }, [id]);
-  const handleCancelEnhancement = () => {
-    navigate(-1); // Go back to the previous page
+  const handleCancelEnhancement = async () => {
+    navigate("/");
   };
-  const handleSaveEnhanced = () => {};
+  const handleSaveEnhanced = () => {
+    navigate("/");
+  };
   const handleStartEnhancement = async () => {
     setIsEnhancing(true);
+
     try {
       console.log("Starting enhancement for article ID:", id);
-      const response = await fetch(`http://127.0.0.1:8000/api/articles/${id}/generate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/articles/${id}/generate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       const data = await response.json();
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       console.log("Enhancement response:", data);
-      let enhanced_article_id = data.enhanced_article_id;
-      const articleResponse = await fetch(
-        `http://127.0.0.1:8000/articles/${enhanced_article_id}`
-      );
-      const articleData = await articleResponse.json();
 
-      setEnhancedContent(articleData.content);
+      const intervalId = setInterval(async () => {
+        try {
+          let statusResponse = await fetch(
+            `http://127.0.0.1:8000/job-status/${data.job_id}`
+          );
+
+          let statusData = await statusResponse.json();
+          console.log(
+            "Checked status for job ID",
+            data.job_id,
+            ":",
+            statusData
+          );
+          if (statusData.status === "completed") {
+            console.log("Enhancement completed:", statusData);
+
+            const enhancedArticleId = statusData.enhanced_article_id;
+            console.log(
+              "Fetching enhanced article with ID:",
+              enhancedArticleId
+            );
+
+            const articleResponse = await fetch(
+              `http://127.0.0.1:8000/articles/${enhancedArticleId}`
+            );
+
+            const articleData = await articleResponse.json();
+            console.log("Fetched enhanced article data:", articleData);
+            setEnhancedContent(articleData);
+            setIsEnhancing(false);
+
+            clearInterval(intervalId);
+          }
+        } catch (err) {
+          console.error("Error checking status:", err);
+          setIsEnhancing(false);
+          clearInterval(intervalId);
+        }
+      }, 10000);
     } catch (error) {
       console.error("Error enhancing article:", error);
-    } finally {
       setIsEnhancing(false);
     }
   };
