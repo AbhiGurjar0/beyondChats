@@ -43,7 +43,7 @@ const ArticleManagementDashboard = () => {
       try {
         setLoading(true);
         console.log("Fetching articles...");
-        const response = await fetch("http://127.0.0.1:8000/articles");
+        const response = await fetch("https://beyondchats-3mml.onrender.com/articles");
         const data = await response.json();
         console.log("Fetched articles:", data);
         setArticles(data);
@@ -136,7 +136,7 @@ const ArticleManagementDashboard = () => {
   const handleScrape = async () => {
     try {
       setIsScraping(true);
-      const response = await fetch("http://127.0.0.1:8000/scrape");
+      const response = await fetch("https://beyondchats-3mml.onrender.com/scrape");
       const data = await response.json();
       console.log("Scraping result:", data);
       navigate(0); // Refresh the page to show new articles
@@ -149,7 +149,7 @@ const ArticleManagementDashboard = () => {
 
   const handleDelete = async (id) => {
     try {
-      let res = await fetch(`http://localhost:8000/articles/${id}`, {
+      let res = await fetch(`https://beyondchats-3mml.onrender.com/articles/${id}`, {
         method: "DELETE",
       });
       res = await res.json();

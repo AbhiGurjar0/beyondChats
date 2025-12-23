@@ -13,7 +13,7 @@ const Enhance = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/articles/${id}`);
+        const response = await fetch(`https://beyondchats-3mml.onrender.com/articles/${id}`);
         const data = await response.json();
         setEnhancingArticle(data);
       } catch (error) {
@@ -36,7 +36,7 @@ const Enhance = () => {
       console.log("Starting enhancement for article ID:", id);
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/articles/${id}/generate`,
+        `https://beyondchats-3mml.onrender.com/api/articles/${id}/generate`,
         {
           method: "POST",
           headers: {
@@ -56,7 +56,7 @@ const Enhance = () => {
       const intervalId = setInterval(async () => {
         try {
           let statusResponse = await fetch(
-            `http://127.0.0.1:8000/job-status/${data.job_id}`
+            `https://beyondchats-3mml.onrender.com/job-status/${data.job_id}`
           );
 
           let statusData = await statusResponse.json();
@@ -76,7 +76,7 @@ const Enhance = () => {
             );
 
             const articleResponse = await fetch(
-              `http://127.0.0.1:8000/articles/${enhancedArticleId}`
+              `https://beyondchats-3mml.onrender.com/articles/${enhancedArticleId}`
             );
 
             const articleData = await articleResponse.json();
