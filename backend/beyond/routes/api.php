@@ -16,7 +16,7 @@ Route::post('/articles/{id}/generate', function ($id) {
     }
 
     $response = Http::timeout(5)->post(
-        'http://127.0.0.1:4000/generate',
+        'https://beyondchats-1-8zpv.onrender.com/generate',
         ['article_id' => $id]
     );
     GenerationJob::create([
