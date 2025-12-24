@@ -4,39 +4,74 @@ use App\Models\Article;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Models\GenerationJob as GenerationJob;
 
 Route::post('/articles/{id}/generate', function ($id) {
 
+    // 1. Find the article
     $article = Article::find($id);
+
     if (!$article) {
         return response()->json([
             'message' => 'Article not found'
         ], 404);
     }
 
-    $response = Http::timeout(5)->post(
-        'https://beyondchats-1-8zpv.onrender.com/generate',
-        ['article_id' => $id]
-    );
-    GenerationJob::create([
-        'article_id' => $id,
-        'job_id' => $response->json('job_id'),
-        'job_status' => 'processing'
-    ]);
-
-    if (!$response->successful()) {
+    // 2. Call Node.js Worker (Increased timeout to 60s for cold starts)
+    try {
+        $response = Http::timeout(60)->post(
+            'https://beyondchats-1-8zpv.onrender.com/generate',
+            ['article_id' => $id]
+        );
+    } catch (\Exception $e) {
+        // Handle connection timeout or network errors specifically
+        Log::error('Node API Connection Failed', ['error' => $e->getMessage()]);
         return response()->json([
-            'message' => 'Node worker failed',
+            'message' => 'Failed to connect to AI Worker',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+
+    // 3. Handle Request Failure (Non-200 Status)
+    if (!$response->successful()) {
+        Log::error('Node API Request Failed', [
+            'status' => $response->status(),
+            'body' => $response->body()
+        ]);
+
+        return response()->json([
+            'message' => 'Node worker returned an error',
             'status' => $response->status(),
             'body' => $response->body()
         ], 500);
     }
+
+    // 4. Handle Success but Missing Data
+    $jobId = $response->json('job_id');
+
+    if (!$jobId) {
+        Log::error('Node API returned success but no job_id', ['body' => $response->body()]);
+
+        return response()->json([
+            'message' => 'Node worker success but missing job_id',
+            'body' => $response->body()
+        ], 500);
+    }
+
+    // 5. Success: Create Database Record
+    GenerationJob::create([
+        'article_id' => $id,
+        'job_id' => $jobId,
+        'job_status' => 'processing'
+    ]);
+
     return response()->json([
         'message' => 'Generation started',
-        'job_id' => $response->json('job_id')
+        'job_id' => $jobId
     ]);
 });
+
 
 Route::post('/articles', function (Request $request) {
 
@@ -52,7 +87,7 @@ Route::post('/articles', function (Request $request) {
     return response()->json([
         'message' => 'Article created successfully',
         'article' => $article
-        
+
     ], 201);
 });
 Route::put('/generation-jobs/update-status', function (Request $request) {
