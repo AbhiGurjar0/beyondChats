@@ -29,8 +29,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # ✅ COPY PROJECT FILES FIRST
 COPY . .
 
-# ✅ NOW composer.json exists
-RUN composer install --no-dev --no-scripts --prefer-dist --optimize-autoloader
+# # ✅ NOW composer.json exists
+# RUN composer install --no-dev --no-scripts --prefer-dist --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
