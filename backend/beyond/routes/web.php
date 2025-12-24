@@ -50,7 +50,7 @@ Route::get('/scrape', function () {
     libxml_clear_errors();
 
     $xpath = new \DOMXPath($dom);
-    $nodes = $xpath->query("//a[contains(@href, '/blogs/')]");
+    $nodes = $xpath->query("//a[contains(@href, '/blogs/3')]");
 
 
     $articles = [];
