@@ -38,7 +38,7 @@ COPY . .
 # 9. Install PHP dependencies
 # --no-dev: Exclude dev dependencies (phpunit, etc.)
 # --optimize-autoloader: Speed up loading classes
-RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --no-scripts --ignore-platform-req=php
 
 # 10. Set permissions for Laravel Storage and Cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
