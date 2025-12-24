@@ -18,6 +18,9 @@ async function startHeavyGeneration(jobId, article_id) {
     let title = response.data.title;
     let content = response.data.content;
     console.log("Article fetched:", title);
+    if(!title || !content){
+      throw new Error("Article title or content is missing");
+    }
 
     const links = await searchGoogle(title);
     console.log("Found links:", links);
