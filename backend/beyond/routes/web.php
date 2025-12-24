@@ -15,9 +15,6 @@ Route::get('/force-migrate', function () {
         return "<h1>Error</h1><pre>" . $e->getMessage() . "</pre>";
     }
 });
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Route;
-use App\Models\Article;
 
 // Helper function to extract robust details
 function scrapeArticleDetails($url)
