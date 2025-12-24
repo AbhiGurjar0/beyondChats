@@ -15,10 +15,11 @@ async function startHeavyGeneration(jobId, article_id) {
     let response = await axios.get(`${LARAVEL_API}/articles/${article_id}`);
     // console.log(response.articles);
     // console.log("Fetched article data for ID:", response.data);
-    let title = response.data.title;
+    let title = response.data.title||"Artificial intelligence in modern web development";
     let content = response.data.content;
     console.log("Article fetched:", title);
     if(!title || !content){
+      console.error("Article title or content is missing");
       throw new Error("Article title or content is missing");
     }
 
