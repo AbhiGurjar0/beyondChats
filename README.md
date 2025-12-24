@@ -13,6 +13,12 @@ To automate the workflow of:
 ## Live URL:
 👉 https://beyondchats-2.onrender.com
 
+## Node URL:
+👉 https://beyondchats-1-8zpv.onrender.com
+
+## PHP URL: 
+👉 https://beyondchats-3.onrender.com
+
 
 ## 🔄 Application Flow
 
