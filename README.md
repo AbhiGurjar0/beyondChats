@@ -105,36 +105,34 @@ A **Node.js AI worker** that:
 
 ## 🏗️ Data Flow / Architecture Diagram
 
+
 ┌──────────────┐
-│  React UI    │
-│ (Frontend)   │
+│ React UI │
+│ (Frontend) │
 └──────┬───────┘
-   API Calls
-      ▼
+│ API Calls
+▼
 ┌──────────────┐
-│ Laravel      │    
-│ Backend      │
-│ (CRUD APIs)  │
+│ Laravel │
+│ Backend │
+│ (CRUD APIs) │
 └──────┬───────┘
-Fetch / Publish
-       ▼
+│ Fetch / Publish
+▼
 ┌──────────────┐
-│  Node.js AI  │
-│   Worker     │
-│    ▼         │ 
-│Google Search |
-│ Web Scraping |
-│ LLM Rewrite  |
+│ Node.js AI │
+│ Worker │
+│ │
+│ - Google Search
+│ - Web Scraping
+│ - LLM Rewrite
 └──────┬───────┘
-    DataBase
-       ▼
+│
+▼
 ┌──────────────┐
-│ PostgreSQL   │
-│ Database     │
+│ PostgreSQL │
+│ Database │
 └──────────────┘
-
-
-
 
 ## 🗃️ Database Schema (Articles)
 
