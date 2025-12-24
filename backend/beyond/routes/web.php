@@ -106,6 +106,12 @@ Route::get('/articles', function () {
 });
 Route::get('/articles/{id}', function ($id) {
     $article = Article::find($id);
+    if (!$article) {
+        return response()->json([
+            'message' => 'Article not found'
+        ], 404);
+    }
+
     return response()->json([
         'id' => $article->id,
         'title' => $article->title,

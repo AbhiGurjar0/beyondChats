@@ -22,16 +22,15 @@ const ArticleViewPage = ({ onEnhance }) => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        // setLoading(true);
         console.log("Fetching articles...");
-        const response = await fetch(`https://beyondchats-3.onrender.com/articles/${id}`);
+        const response = await fetch(
+          `https://beyondchats-3.onrender.com/articles/${id}`
+        );
         const data = await response.json();
         console.log("Fetched articles:", data);
         setArticle(data);
       } catch (error) {
         console.error("Error fetching articles:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -209,9 +208,7 @@ const ArticleViewPage = ({ onEnhance }) => {
               </div>
             </div>
           </article>
-         
         )}
-        
 
         {/* Related Info Card */}
         {article.parent_id && (
