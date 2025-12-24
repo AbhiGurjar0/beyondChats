@@ -15,7 +15,7 @@ async function startHeavyGeneration(jobId, article_id) {
     let response = await axios.get(`${LARAVEL_API}/articles/${article_id}`);
     // console.log(response.articles);
     // console.log("Fetched article data for ID:", response.data);
-    let title = response.data.title||"Artificial intelligence in modern web development";
+    let title = response.data.title||"Artificial intelligence";
     let content = response.data.content;
     console.log("Article fetched:", title);
     if(!title || !content){
