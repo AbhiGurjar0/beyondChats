@@ -13,6 +13,30 @@ To automate the workflow of:
 ## Live URL:
 👉 https://beyondchats-2.onrender.com
 
+🔄 Application Flow
+
+Follow the steps below to understand how the article scraping and enhancement process works:
+
+Open the Home Page
+Start by navigating to the home page of the application.
+
+Scrape Articles
+Click on the Scrap button.
+The system will fetch 5 articles from BeyondChat and display them on the screen.
+
+View Full Article
+Click on See More to read the complete content of any article.
+
+Enhance Article
+Click on the Enhance button.
+You will be redirected to the Article Enhancing Page.
+
+Enhance with AI
+Click on Enhance with AI.
+The enhancement process will start, and a loading state will be shown while the AI processes the article.
+
+Save Enhanced Article
+Once the enhancement is complete, click on Save to store the enhanced version of the article.
 
 ## 🧩 Phase-wise Implementation
 
