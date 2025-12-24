@@ -24,7 +24,7 @@ const ArticleViewPage = ({ onEnhance }) => {
       try {
         // setLoading(true);
         console.log("Fetching articles...");
-        const response = await fetch(`https://beyondchats-3mml.onrender.com/articles/${id}`);
+        const response = await fetch(`https://beyondchats-3.onrender.com/articles/${id}`);
         const data = await response.json();
         console.log("Fetched articles:", data);
         setArticle(data);
