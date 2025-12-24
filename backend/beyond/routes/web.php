@@ -22,6 +22,7 @@ function scrapeArticleDetails($url)
     try {
         $response = Http::timeout(30)->get($url);
         
+        // Handle 404 or errors
         if ($response->failed()) return null;
 
         $html = $response->body();
@@ -33,6 +34,8 @@ function scrapeArticleDetails($url)
 
         $xpath = new \DOMXPath($dom);
 
+        // 1. EXTRACT METADATA (More accurate than parsing Body)
+        // Get Featured Image
         $imageQuery = $xpath->query('//meta[@property="og:image"]/@content');
         $image = $imageQuery->length > 0 ? $imageQuery->item(0)->value : null;
 
@@ -44,6 +47,8 @@ function scrapeArticleDetails($url)
         $descQuery = $xpath->query('//meta[@property="og:description"]/@content');
         $excerpt = $descQuery->length > 0 ? $descQuery->item(0)->value : null;
 
+        // 2. EXTRACT & CLEAN MAIN CONTENT
+        // Priority list of content containers (WordPress standards)
         $queries = [
             "//div[contains(@class, 'entry-content')]",
             "//div[contains(@class, 'post-content')]",
@@ -62,6 +67,7 @@ function scrapeArticleDetails($url)
 
         $content = '';
         if ($contentNode) {
+            // CRITICAL: Remove <script> and <style> tags so they don't appear in your text
             foreach ($xpath->query('.//script|.//style', $contentNode) as $remove) {
                 $remove->parentNode->removeChild($remove);
             }
@@ -122,10 +128,13 @@ Route::get('/scrape', function () {
 
         Article::create([
             'title' => trim($node->textContent),
-            'source_url' => $url, 
+            'source_url' => $url, // Changed 'url' to 'source_url' based on typical DB naming
             'content' => $details['content'],
             'is_generated' => false,
-           
+            // You can add these fields to your database migration if you want them:
+            // 'image_url' => $details['image_url'], 
+            // 'published_at' => $details['published_at'],
+            // 'excerpt' => $details['excerpt'],
         ]);
 
         $saved++;

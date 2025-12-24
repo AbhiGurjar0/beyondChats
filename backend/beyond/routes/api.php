@@ -70,8 +70,6 @@ Route::post('/articles/{id}/generate', function ($id) {
         'job_id' => $jobId
     ]);
 });
-
-
 Route::post('/articles', function (Request $request) {
 
     $validated = $request->validate([
