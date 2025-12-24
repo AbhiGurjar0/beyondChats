@@ -5,6 +5,16 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
 use App\Models\Article;
 use App\Models\GenerationJob as GenerationJob;
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/force-migrate', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        return "<h1>Migrations completed successfully!</h1><pre>" . Artisan::output() . "</pre>";
+    } catch (\Exception $e) {
+        return "<h1>Error</h1><pre>" . $e->getMessage() . "</pre>";
+    }
+});
 function scrapeArticleContent($url)
 {
     $response = Http::get($url);
