@@ -137,6 +137,8 @@ A **Node.js AI worker** that:
 ## ⚙️ Local Setup Instructions
 
 ### Backend (Laravel)
+
+```bash
 composer install
 cp .env.example .env
 php artisan key:generate
