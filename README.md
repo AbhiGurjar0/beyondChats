@@ -1,10 +1,5 @@
 # 🚀 BeyondChats – Article Intelligence Platform
 
-An end-to-end **AI-powered article enhancement system** that scrapes blog articles, analyzes top Google-ranking content, rewrites articles using LLMs, and displays both original and enhanced versions in a modern React UI.
-
-This project was built as part of a technical assignment and demonstrates **full-stack engineering, AI integration, and production-ready architecture**.
-
----
 
 ## 📌 Project Objective
 
