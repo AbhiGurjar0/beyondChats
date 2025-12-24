@@ -16,7 +16,7 @@ async function startHeavyGeneration(jobId, article_id) {
     // console.log(response.articles);
     // console.log("Fetched article data for ID:", response.data);
     let title = response.data.title||"Artificial intelligence";
-    let content = response.data.content;
+    let content = response.data.content||"Artificial intelligence";
     console.log("Article fetched:", title);
     if(!title || !content){
       console.error("Article title or content is missing");
