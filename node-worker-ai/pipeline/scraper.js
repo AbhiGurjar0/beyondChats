@@ -12,7 +12,7 @@ async function scrapeArticle(url) {
         Referer: "https://www.google.com/",
       },
       timeout: 12000,
-      validateStatus: (status) => status < 500, // allow 4xx
+      validateStatus: (status) => status < 500,
     });
 
     if (response.status !== 200) {

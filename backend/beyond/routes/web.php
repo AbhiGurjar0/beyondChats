@@ -123,26 +123,20 @@ Route::get('/articles/{id}', function ($id) {
     ]);
 });
 Route::get('/job-status/{jobId}', function ($jobId) {
-
-    // 1. Find the job by the UUID you sent
     $job = GenerationJob::where('job_id', $jobId)->first();
 
-    // 2. If the job doesn't exist yet (or is slow to replicate), tell UI to wait
     if (!$job) {
         return response()->json([
             'status' => 'processing', // Keep waiting
         ]);
     }
 
-    // 3. CRITICAL FIX: Check the actual status column in the DB
-    // If the worker hasn't finished, job_status will be 'processing'
     if ($job->job_status !== 'completed') {
         return response()->json([
             'status' => 'processing', // Still waiting
         ]);
     }
 
-    // 4. Only returns "completed" when the database actually confirms it
     return response()->json([
         'status' => 'completed',
         'enhanced_article_id' => $job->enhanced_article_id, // This will now have a value

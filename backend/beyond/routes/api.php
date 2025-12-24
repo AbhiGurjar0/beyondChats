@@ -18,14 +18,13 @@ Route::post('/articles/{id}/generate', function ($id) {
         ], 404);
     }
 
-    // 2. Call Node.js Worker (Increased timeout to 60s for cold starts)
+    // 2. Call Node.js Worker 
     try {
         $response = Http::timeout(60)->post(
             'https://beyondchats-1-8zpv.onrender.com/generate',
             ['article_id' => $id]
         );
     } catch (\Exception $e) {
-        // Handle connection timeout or network errors specifically
         Log::error('Node API Connection Failed', ['error' => $e->getMessage()]);
         return response()->json([
             'message' => 'Failed to connect to AI Worker',
@@ -33,7 +32,7 @@ Route::post('/articles/{id}/generate', function ($id) {
         ], 500);
     }
 
-    // 3. Handle Request Failure (Non-200 Status)
+    // 3. Handle Request Failure
     if (!$response->successful()) {
         Log::error('Node API Request Failed', [
             'status' => $response->status(),

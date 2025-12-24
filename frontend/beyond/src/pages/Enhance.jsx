@@ -13,7 +13,9 @@ const Enhance = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await fetch(`https://beyondchats-3.onrender.com/articles/${id}`);
+        const response = await fetch(
+          `https://beyondchats-3.onrender.com/articles/${id}`
+        );
         const data = await response.json();
         setEnhancingArticle(data);
       } catch (error) {
