@@ -1,4 +1,4 @@
-![WhatsApp Image 2025-12-21 at 22 27 59](https://github.com/user-attachments/assets/5658fce4-825a-42d0-a2bf-7c75de736f87)# 🚀 BeyondChats – Article Intelligence Platform
+# 🚀 BeyondChats – Article Intelligence Platform
 
 An end-to-end **AI-powered article enhancement system** that scrapes blog articles, analyzes top Google-ranking content, rewrites articles using LLMs, and displays both original and enhanced versions in a modern React UI.
 
@@ -105,7 +105,7 @@ A **Node.js AI worker** that:
 
 ## 🏗️ Data Flow / Architecture Diagram
 
-![Architecture Diagram](docs/images/architecture.png)
+![Architecture Diagram](docs/images/Gemini_Generated_Image_sk7xtesk7xtesk7x.png)
 
 ## 🗃️ Database Schema (Articles)
 
