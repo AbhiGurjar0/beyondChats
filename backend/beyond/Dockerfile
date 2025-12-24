@@ -3,13 +3,15 @@ FROM php:8.2-apache
 # Enable Apache rewrite (Laravel needs this)
 RUN a2enmod rewrite
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git unzip zip curl \
-    libpng-dev libjpeg-dev libfreetype6-dev \
-    libonig-dev libxml2-dev libzip-dev
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    zip unzip git curl
 
-# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
 RUN docker-php-ext-install \
     pdo \
     pdo_pgsql \
@@ -17,8 +19,9 @@ RUN docker-php-ext-install \
     exif \
     pcntl \
     bcmath \
-    gd \
     zip
+
+RUN docker-php-ext-install gd
 
 # Set working directory
 WORKDIR /var/www/html
