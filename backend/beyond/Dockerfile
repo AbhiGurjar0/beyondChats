@@ -44,12 +44,8 @@ RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoload
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 11. Copy and set entrypoint script (See step 3 below)
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # 12. Expose port 80 (Render usually maps this automatically)
 EXPOSE 80
 
-# 13. Run the entrypoint script
-ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["apache2-foreground"]
